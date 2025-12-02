@@ -3,6 +3,7 @@ FastAPI application entry point.
 
 Main application configuration with CORS, routers, and error handling.
 """
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -19,6 +20,10 @@ from app.routers import (
 )
 from app import db
 
+# Environment variables
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Academia Digital API",
@@ -32,7 +37,7 @@ app = FastAPI(
 # Allow all origins for development (restrict in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify exact origins
+    allow_origins=ALLOWED_ORIGINS if ENVIRONMENT == "production" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,9 +95,11 @@ async def health_check():
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))
+    reload = ENVIRONMENT == "development"
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True
+        port=port,
+        reload=reload
     )

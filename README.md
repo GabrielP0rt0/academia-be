@@ -8,6 +8,7 @@ Backend API desenvolvido com FastAPI para o sistema de gestão de academia. Esta
 - [Estrutura do Projeto](#estrutura-do-projeto)
 - [Instalação](#instalação)
 - [Execução](#execução)
+- [Deploy no Render](#deploy-no-render)
 - [Endpoints da API](#endpoints-da-api)
 - [Testes](#testes)
 - [Arquitetura](#arquitetura)
@@ -100,6 +101,95 @@ A API estará disponível em:
 - **API**: http://localhost:8000
 - **Documentação Swagger**: http://localhost:8000/docs
 - **Documentação ReDoc**: http://localhost:8000/redoc
+
+## 🚀 Deploy no Render
+
+### Pré-requisitos
+
+- Conta no [Render](https://render.com)
+- Repositório Git (GitHub, GitLab ou Bitbucket) com o código do projeto
+
+### Passo a Passo
+
+1. **Faça login no Render** e acesse o dashboard
+
+2. **Crie um novo Web Service**:
+   - Clique em "New +" → "Web Service"
+   - Conecte seu repositório Git
+   - Selecione o repositório do projeto
+
+3. **Configure o serviço**:
+   - **Name**: `academia-be` (ou o nome que preferir)
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Plan**: Escolha o plano (Free para testes)
+
+4. **Variáveis de Ambiente** (opcional, mas recomendado):
+   - `ENVIRONMENT`: `production`
+   - `ALLOWED_ORIGINS`: URLs permitidas separadas por vírgula (ex: `https://seu-frontend.com`)
+   - `PORT`: Deixe vazio (Render define automaticamente)
+
+5. **Deploy**:
+   - Clique em "Create Web Service"
+   - O Render irá fazer o build e deploy automaticamente
+   - Aguarde o processo concluir (pode levar alguns minutos)
+
+6. **Verificação**:
+   - Após o deploy, acesse a URL fornecida pelo Render
+   - Teste o endpoint `/health` para verificar se está funcionando
+   - Acesse `/docs` para ver a documentação da API
+
+### Configuração Automática com render.yaml
+
+O projeto já inclui um arquivo `render.yaml` que configura automaticamente o serviço. Se você usar este arquivo:
+
+1. No Render, ao criar o serviço, selecione "Apply render.yaml"
+2. O Render lerá as configurações do arquivo automaticamente
+3. Você ainda pode ajustar variáveis de ambiente manualmente se necessário
+
+### Variáveis de Ambiente Recomendadas
+
+Para produção, configure as seguintes variáveis no Render:
+
+```env
+ENVIRONMENT=production
+ALLOWED_ORIGINS=https://seu-frontend.com,https://www.seu-frontend.com
+```
+
+**Importante**: 
+- Substitua `seu-frontend.com` pela URL real do seu frontend
+- Se não configurar `ALLOWED_ORIGINS`, o CORS permitirá todas as origens (não recomendado para produção)
+
+### Troubleshooting do Deploy
+
+**Erro de build**:
+- Verifique se o `requirements.txt` está atualizado
+- Confirme que todas as dependências estão listadas
+
+**Erro ao iniciar**:
+- Verifique os logs no dashboard do Render
+- Confirme que o `startCommand` está correto
+- Verifique se a porta está usando `$PORT` (variável do Render)
+
+**CORS não funciona**:
+- Configure `ALLOWED_ORIGINS` com as URLs corretas do frontend
+- Certifique-se de que `ENVIRONMENT=production` está configurado
+
+**Dados não persistem**:
+- ⚠️ **Atenção**: No Render, os arquivos JSON são armazenados no sistema de arquivos efêmero
+- Os dados serão perdidos quando o serviço reiniciar ou for atualizado
+- Para produção, considere migrar para um banco de dados persistente (PostgreSQL, MongoDB, etc.)
+
+### Limitações do Deploy com JSON
+
+Como este projeto usa arquivos JSON como banco de dados:
+
+- **Dados temporários**: No Render, os dados são perdidos quando o serviço reinicia
+- **Não escalável**: Não funciona bem com múltiplas instâncias
+- **Adequado apenas para**: POC, testes e desenvolvimento
+
+**Recomendação**: Para produção, migre para um banco de dados real antes de fazer deploy.
 
 ## 📡 Endpoints da API
 
