@@ -1,0 +1,38 @@
+[
+  {
+    "id": "880e8400-e29b-41d4-a716-446655440000",
+    "student_id": "550e8400-e29b-41d4-a716-446655440000",
+    "date": "2025-01-01",
+    "weight_kg": 80.5,
+    "height_m": 1.75,
+    "measurements": {
+      "waist_cm": 85,
+      "hip_cm": 95
+    },
+    "notes": "Avaliação inicial",
+    "imc": 26.29
+  },
+  {
+    "id": "880e8400-e29b-41d4-a716-446655440001",
+    "student_id": "550e8400-e29b-41d4-a716-446655440000",
+    "date": "2025-01-15",
+    "weight_kg": 79.0,
+    "height_m": 1.75,
+    "measurements": {
+      "waist_cm": 83,
+      "hip_cm": 94
+    },
+    "notes": "Primeira reavaliação",
+    "imc": 25.8
+  },
+  {
+    "id": "f7753c09-9c37-4f42-afe5-416febea6879",
+    "student_id": "550e8400-e29b-41d4-a716-446655440001",
+    "date": "2025-12-01",
+    "weight_kg": 12.0,
+    "height_m": 2.1,
+    "measurements": null,
+    "notes": "Gordo",
+    "imc": 2.72
+  }
+]

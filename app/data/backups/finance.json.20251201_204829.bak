@@ -1,0 +1,30 @@
+[
+  {
+    "id": "990e8400-e29b-41d4-a716-446655440000",
+    "date_time": "2025-01-12T10:00:00",
+    "type": "income",
+    "amount": 150.00,
+    "category": "Mensalidade",
+    "description": "Mensalidade Janeiro - João Silva",
+    "created_by": "admin"
+  },
+  {
+    "id": "990e8400-e29b-41d4-a716-446655440001",
+    "date_time": "2025-01-12T11:00:00",
+    "type": "income",
+    "amount": 150.00,
+    "category": "Mensalidade",
+    "description": "Mensalidade Janeiro - Maria Santos",
+    "created_by": "admin"
+  },
+  {
+    "id": "990e8400-e29b-41d4-a716-446655440002",
+    "date_time": "2025-01-12T14:00:00",
+    "type": "expense",
+    "amount": 50.00,
+    "category": "Material",
+    "description": "Compra de equipamentos",
+    "created_by": "admin"
+  }
+]
+
