@@ -103,11 +103,16 @@ Para produção, considere migrar para:
 **Causa**: A variável `PORT` está configurada manualmente no dashboard do Render com um valor inválido.
 
 **Solução**: 
-1. Acesse o dashboard do Render
-2. Vá em "Environment" no seu serviço
-3. **Remova** a variável `PORT` se ela estiver configurada manualmente
-4. O Render define `PORT` automaticamente - não precisa configurar manualmente
-5. Faça um novo deploy
+1. **Solução Automática**: O projeto agora inclui `start.py` que valida automaticamente a porta. Se você fez deploy recente, isso já deve estar resolvido.
+
+2. **Solução Manual** (se ainda ocorrer):
+   - Acesse o dashboard do Render
+   - Vá em "Environment" no seu serviço
+   - **Remova** a variável `PORT` se ela estiver configurada manualmente
+   - O Render define `PORT` automaticamente - não precisa configurar manualmente
+   - Faça um novo deploy
+
+**Nota**: O script `start.py` valida a porta automaticamente e usa 8000 como fallback se a porta for inválida.
 
 ### Erro: "Module not found"
 

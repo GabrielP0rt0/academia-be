@@ -170,7 +170,8 @@ ALLOWED_ORIGINS=https://seu-frontend.com,https://www.seu-frontend.com
 **Erro ao iniciar**:
 - Verifique os logs no dashboard do Render
 - Confirme que o `startCommand` está correto
-- Verifique se a porta está usando `$PORT` (variável do Render)
+- O projeto usa `start.py` que valida automaticamente a porta
+- Se ainda ocorrer erro de porta, remova a variável `PORT` manual do dashboard do Render
 
 **CORS não funciona**:
 - Configure `ALLOWED_ORIGINS` com as URLs corretas do frontend
