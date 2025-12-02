@@ -17,8 +17,10 @@ Configure as seguintes variáveis no dashboard do Render:
 | Variável | Valor Padrão | Descrição | Obrigatório |
 |----------|--------------|-----------|-------------|
 | `ENVIRONMENT` | `development` | Ambiente de execução (`development` ou `production`) | Não |
-| `PORT` | `8000` | Porta do servidor (deixe vazio, Render define automaticamente) | Não |
+| `PORT` | - | **NÃO CONFIGURE MANUALMENTE** - Render define automaticamente | Não |
 | `ALLOWED_ORIGINS` | `*` | URLs permitidas para CORS (separadas por vírgula) | Não (mas recomendado em produção) |
+
+⚠️ **IMPORTANTE**: Nunca configure a variável `PORT` manualmente no Render. O Render define essa variável automaticamente para serviços web. Se você configurar manualmente, pode causar erros de deploy.
 
 ### Exemplo de Configuração para Produção
 
@@ -95,6 +97,17 @@ Para produção, considere migrar para:
 - **Supabase** (PostgreSQL + Auth)
 
 ## 🔧 Troubleshooting
+
+### Erro: "Invalid value for '--port': '...' is not a valid integer"
+
+**Causa**: A variável `PORT` está configurada manualmente no dashboard do Render com um valor inválido.
+
+**Solução**: 
+1. Acesse o dashboard do Render
+2. Vá em "Environment" no seu serviço
+3. **Remova** a variável `PORT` se ela estiver configurada manualmente
+4. O Render define `PORT` automaticamente - não precisa configurar manualmente
+5. Faça um novo deploy
 
 ### Erro: "Module not found"
 

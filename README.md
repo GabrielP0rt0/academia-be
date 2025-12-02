@@ -128,7 +128,7 @@ A API estará disponível em:
 4. **Variáveis de Ambiente** (opcional, mas recomendado):
    - `ENVIRONMENT`: `production`
    - `ALLOWED_ORIGINS`: URLs permitidas separadas por vírgula (ex: `https://seu-frontend.com`)
-   - `PORT`: Deixe vazio (Render define automaticamente)
+   - ⚠️ **NÃO configure `PORT`** - O Render define automaticamente
 
 5. **Deploy**:
    - Clique em "Create Web Service"
