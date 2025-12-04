@@ -20,6 +20,7 @@ Backend API desenvolvido com FastAPI para o sistema de gestão de academia. Esta
 - **FastAPI** - Framework web moderno e rápido
 - **Pydantic** - Validação de dados
 - **Uvicorn** - Servidor ASGI
+- **OpenPyXL** - Geração de arquivos Excel
 - **JSON Files** - Armazenamento de dados (POC)
 
 ## 📁 Estrutura do Projeto
@@ -171,7 +172,7 @@ ALLOWED_ORIGINS=https://seu-frontend.com,https://www.seu-frontend.com
 - Verifique os logs no dashboard do Render
 - Confirme que o `startCommand` está correto
 - O projeto usa `start.py` que valida automaticamente a porta
-- Se ainda ocorrer erro de porta, remova a variável `PORT` manual do dashboard do Render
+- **Se você ver um warning sobre PORT inválido**: Remova a variável `PORT` manual do dashboard do Render (Environment → Delete PORT)
 
 **CORS não funciona**:
 - Configure `ALLOWED_ORIGINS` com as URLs corretas do frontend
@@ -210,22 +211,52 @@ Como este projeto usa arquivos JSON como banco de dados:
 - `GET /api/classes` - Lista todas as aulas
 - `POST /api/classes` - Cria nova aula
 
+### Enrollments (Matrículas)
+
+- `GET /api/enrollments` - Lista todas as matrículas
+- `GET /api/enrollments/class/{class_id}/students` - Lista alunos matriculados em uma aula
+- `GET /api/enrollments/student/{student_id}` - Lista matrículas de um aluno
+- `POST /api/enrollments` - Matricula aluno em uma aula
+- `DELETE /api/enrollments/{enrollment_id}` - Remove matrícula
+
 ### Attendance (Presença)
 
-- `POST /api/attendance` - Registra presença individual
+- `GET /api/attendance/class/{class_id}/students` - Lista alunos matriculados para presença (apenas matriculados)
+- `POST /api/attendance` - Registra presença individual (valida se aluno está matriculado)
 - `POST /api/attendance/bulk` - Registra múltiplas presenças
 - `GET /api/attendance/class/{class_id}?from=YYYY-MM-DD&to=YYYY-MM-DD` - Lista presenças de uma aula (com filtro opcional de data)
 
 ### Evaluations (Avaliações)
 
-- `POST /api/evaluations` - Cria nova avaliação física
+- `POST /api/evaluations` - Cria nova avaliação física completa (com todos os campos e cálculos automáticos)
 - `GET /api/evaluations/student/{student_id}` - Lista avaliações de um aluno
 - `GET /api/evaluations/student/{student_id}/chart-data` - Dados para gráfico de evolução
+- `GET /api/evaluations/{evaluation_id}/report` - Relatório completo de avaliação com comparações
+
+**Campos da Avaliação Física**:
+- Dados básicos: peso, altura, idade (calculada automaticamente)
+- Condições de saúde: cardiopatia, hipertensão, diabetes (com observações)
+- Sinais vitais: frequência cardíaca em repouso
+- Testes físicos: Wells sit and reach, flexão de tronco
+- Dobras cutâneas: tríceps, subescapular, subaxilar, suprailíaca, abdominal, quadríceps, panturrilha
+- Perímetros corporais: tórax, braços (R/L), braços contraídos (R/L), antebraços (R/L), cintura, abdominal, quadril, coxas (R/L), pernas (R/L)
+
+**Cálculos Automáticos**:
+- IMC (Índice de Massa Corporal)
+- Metabolismo Basal (fórmula de Harris-Benedict)
+- Idade Corporal
+- Gordura Visceral
+- Peso Gordura e Peso Magro
+- % Gordura Corporal (fórmula Jackson-Pollock 7 dobras)
+- % Massa Magra
 
 ### Finance (Financeiro)
 
-- `POST /api/finance` - Cria lançamento financeiro
+- `POST /api/finance` - Cria lançamento financeiro (com método de pagamento obrigatório)
 - `GET /api/finance?date=YYYY-MM-DD` - Lista lançamentos do dia com totais
+- `GET /api/finance/export/xlsx?date=YYYY-MM-DD` - Exporta relatório completo para Excel
+
+**Métodos de Pagamento**: `credit`, `debit`, `pix`, `cash`, `other`
 
 ### Dashboard
 

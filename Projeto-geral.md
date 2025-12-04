@@ -1,4 +1,4 @@
-pacote “Geral” pronto para passar ao desenvolvedor (cursor): planejamento de tarefas, arquitetura de alto nível, contratos de API (endpoints + formatos JSON de exemplo), estrutura de pastas sugerida, fluxos de uso (UX), critérios de aceite e roteiro de testes locais. Tudo sem código — só direcionamento claro para implementação e primeiros testes locais.
+d pacote “Geral” pronto para passar ao desenvolvedor (cursor): planejamento de tarefas, arquitetura de alto nível, contratos de API (endpoints + formatos JSON de exemplo), estrutura de pastas sugerida, fluxos de uso (UX), critérios de aceite e roteiro de testes locais. Tudo sem código — só direcionamento claro para implementação e primeiros testes locais.
 
 1 — Objetivo curto-prazo
 

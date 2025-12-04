@@ -103,16 +103,22 @@ Para produção, considere migrar para:
 **Causa**: A variável `PORT` está configurada manualmente no dashboard do Render com um valor inválido.
 
 **Solução**: 
-1. **Solução Automática**: O projeto agora inclui `start.py` que valida automaticamente a porta. Se você fez deploy recente, isso já deve estar resolvido.
+1. **IMPORTANTE**: Mesmo com o script `start.py` funcionando (que usa fallback), você DEVE remover a variável PORT manual para usar a porta correta do Render:
+   - Acesse o dashboard do Render: https://dashboard.render.com
+   - Clique no seu serviço `academia-be`
+   - Vá na aba "Environment" (ou "Configurações" → "Environment Variables")
+   - Procure por uma variável chamada `PORT`
+   - Se encontrar, clique no ícone de lixeira para **DELETAR** essa variável
+   - Salve as alterações
+   - O Render fará um redeploy automaticamente
 
-2. **Solução Manual** (se ainda ocorrer):
-   - Acesse o dashboard do Render
-   - Vá em "Environment" no seu serviço
-   - **Remova** a variável `PORT` se ela estiver configurada manualmente
-   - O Render define `PORT` automaticamente - não precisa configurar manualmente
-   - Faça um novo deploy
+2. **Por que isso é importante?**
+   - O Render define `PORT` automaticamente para serviços web (ex: 10000)
+   - Se você configurar `PORT` manualmente, ela sobrescreve a automática
+   - O script `start.py` funciona como fallback, mas você deve usar a porta correta do Render
+   - Após remover, o warning desaparecerá e o serviço usará a porta correta
 
-**Nota**: O script `start.py` valida a porta automaticamente e usa 8000 como fallback se a porta for inválida.
+**Nota**: O script `start.py` valida a porta automaticamente e usa 8000 como fallback se a porta for inválida, mas isso é apenas uma medida de segurança. O ideal é remover a variável manual.
 
 ### Erro: "Module not found"
 

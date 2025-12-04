@@ -8,11 +8,28 @@ from typing import List, Optional
 from app.schemas import (
     AttendanceCreate,
     AttendanceBulkCreate,
-    AttendanceResponse
+    AttendanceResponse,
+    StudentResponse
 )
 from app import crud
 
 router = APIRouter(prefix="/api/attendance", tags=["Attendance"])
+
+
+@router.get("/class/{class_id}/students", response_model=List[StudentResponse], status_code=200)
+async def get_enrolled_students_for_attendance(class_id: str):
+    """Get all enrolled students for a class (for attendance list)."""
+    # Validate class_id exists
+    class_item = crud.get_class_by_id(class_id)
+    if not class_item:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Class with id {class_id} not found"
+        )
+    
+    # Get only enrolled students
+    enrolled_students = crud.get_enrolled_students_by_class(class_id)
+    return enrolled_students
 
 
 @router.post("", response_model=AttendanceResponse, status_code=201)
@@ -32,6 +49,13 @@ async def create_attendance(attendance: AttendanceCreate):
         raise HTTPException(
             status_code=404,
             detail=f"Student with id {attendance.student_id} not found"
+        )
+    
+    # Validate student is enrolled in the class
+    if not crud.is_student_enrolled(attendance.student_id, attendance.class_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Student is not enrolled in this class"
         )
     
     attendance_data = attendance.model_dump()
@@ -59,6 +83,13 @@ async def create_attendance_bulk(bulk_data: AttendanceBulkCreate):
             raise HTTPException(
                 status_code=404,
                 detail=f"Student with id {entry.student_id} not found"
+            )
+        
+        # Validate student is enrolled in the class
+        if not crud.is_student_enrolled(entry.student_id, entry.class_id):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Student {entry.student_id} is not enrolled in class {entry.class_id}"
             )
     
     # All validations passed, create all records

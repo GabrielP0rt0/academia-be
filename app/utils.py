@@ -205,3 +205,282 @@ def filter_by_date_range(
         filtered.append(item)
     
     return filtered
+
+
+# ============================================================================
+# Evaluation Calculation Functions
+# ============================================================================
+
+def calculate_age(birthdate: str, evaluation_date: str) -> int:
+    """
+    Calculate age from birthdate to evaluation date.
+    
+    Args:
+        birthdate: Birthdate in YYYY-MM-DD format
+        evaluation_date: Evaluation date in YYYY-MM-DD format
+    
+    Returns:
+        Age in years
+    """
+    try:
+        birth = parse_date_from_iso(birthdate)
+        eval_date = parse_date_from_iso(evaluation_date)
+        
+        if not birth or not eval_date:
+            return 0
+        
+        age = eval_date.year - birth.year
+        if (eval_date.month, eval_date.day) < (birth.month, birth.day):
+            age -= 1
+        
+        return max(0, age)
+    except (ValueError, AttributeError):
+        return 0
+
+
+def calculate_basal_metabolism(weight_kg: float, height_m: float, age: int, is_male: bool = True) -> float:
+    """
+    Calculate basal metabolic rate using Harris-Benedict equation.
+    
+    Args:
+        weight_kg: Weight in kilograms
+        height_m: Height in meters
+        age: Age in years
+        is_male: True for male, False for female
+    
+    Returns:
+        Basal metabolism in kcal/day, rounded to 2 decimal places
+    """
+    height_cm = height_m * 100
+    
+    if is_male:
+        # Harris-Benedict equation for men
+        bmr = 88.362 + (13.397 * weight_kg) + (4.799 * height_cm) - (5.677 * age)
+    else:
+        # Harris-Benedict equation for women
+        bmr = 447.593 + (9.247 * weight_kg) + (3.098 * height_cm) - (4.330 * age)
+    
+    return round(bmr, 2)
+
+
+def calculate_body_fat_percentage(
+    age: int,
+    is_male: bool,
+    skinfold_triceps: float,
+    skinfold_subscapular: float,
+    skinfold_subaxillary: float,
+    skinfold_suprailiac: float,
+    skinfold_abdominal: float,
+    skinfold_quadriceps: float,
+    skinfold_calf: float
+) -> float:
+    """
+    Calculate body fat percentage using Jackson-Pollock 7-site skinfold method.
+    
+    Args:
+        age: Age in years
+        is_male: True for male, False for female
+        skinfold_*: Skinfold measurements in mm
+    
+    Returns:
+        Body fat percentage, rounded to 2 decimal places
+    """
+    # Sum of all 7 skinfolds
+    sum_skinfolds = (
+        skinfold_triceps +
+        skinfold_subscapular +
+        skinfold_subaxillary +
+        skinfold_suprailiac +
+        skinfold_abdominal +
+        skinfold_quadriceps +
+        skinfold_calf
+    )
+    
+    # Jackson-Pollock 7-site formula
+    if is_male:
+        # Men: BD = 1.112 - (0.00043499 × S) + (0.00000055 × S²) - (0.00028826 × age)
+        body_density = 1.112 - (0.00043499 * sum_skinfolds) + (0.00000055 * (sum_skinfolds ** 2)) - (0.00028826 * age)
+    else:
+        # Women: BD = 1.097 - (0.00046971 × S) + (0.00000056 × S²) - (0.00012828 × age)
+        body_density = 1.097 - (0.00046971 * sum_skinfolds) + (0.00000056 * (sum_skinfolds ** 2)) - (0.00012828 * age)
+    
+    # Convert body density to body fat percentage using Siri equation
+    body_fat_percentage = ((4.95 / body_density) - 4.5) * 100
+    
+    # Ensure reasonable bounds
+    body_fat_percentage = max(5.0, min(50.0, body_fat_percentage))
+    
+    return round(body_fat_percentage, 2)
+
+
+def calculate_fat_and_lean_weight(weight_kg: float, fat_percentage: float) -> Dict[str, float]:
+    """
+    Calculate fat weight and lean weight from total weight and fat percentage.
+    
+    Args:
+        weight_kg: Total weight in kilograms
+        fat_percentage: Body fat percentage
+    
+    Returns:
+        Dictionary with 'fat_weight' and 'lean_weight' in kg
+    """
+    fat_weight = (weight_kg * fat_percentage) / 100
+    lean_weight = weight_kg - fat_weight
+    
+    return {
+        'fat_weight': round(fat_weight, 2),
+        'lean_weight': round(lean_weight, 2)
+    }
+
+
+def calculate_lean_mass_percentage(fat_percentage: float) -> float:
+    """
+    Calculate lean mass percentage from fat percentage.
+    
+    Args:
+        fat_percentage: Body fat percentage
+    
+    Returns:
+        Lean mass percentage, rounded to 2 decimal places
+    """
+    lean_percentage = 100 - fat_percentage
+    return round(lean_percentage, 2)
+
+
+def calculate_visceral_fat(waist_perimeter: float, height_m: float, age: int, is_male: bool) -> float:
+    """
+    Calculate visceral fat level using waist-to-height ratio and age.
+    
+    Args:
+        waist_perimeter: Waist perimeter in cm
+        height_m: Height in meters
+        age: Age in years
+        is_male: True for male, False for female
+    
+    Returns:
+        Visceral fat level (0-59 scale), rounded to 2 decimal places
+    """
+    height_cm = height_m * 100
+    waist_to_height_ratio = waist_perimeter / height_cm
+    
+    # Base calculation
+    if is_male:
+        visceral_fat = (waist_perimeter - (0.082 * height_cm)) * 1.18
+    else:
+        visceral_fat = (waist_perimeter - (0.082 * height_cm)) * 1.18
+    
+    # Adjust for age
+    age_factor = age * 0.1
+    visceral_fat += age_factor
+    
+    # Normalize to 0-59 scale (typical visceral fat range)
+    visceral_fat = max(0.0, min(59.0, visceral_fat))
+    
+    return round(visceral_fat, 2)
+
+
+def calculate_body_age(
+    age: int,
+    bmi: float,
+    fat_percentage: float,
+    visceral_fat: float,
+    is_male: bool
+) -> float:
+    """
+    Calculate body age based on body composition metrics.
+    
+    Args:
+        age: Chronological age in years
+        bmi: Body Mass Index
+        fat_percentage: Body fat percentage
+        visceral_fat: Visceral fat level
+        is_male: True for male, False for female
+    
+    Returns:
+        Estimated body age in years, rounded to 1 decimal place
+    """
+    # Base body age starts at chronological age
+    body_age = float(age)
+    
+    # Adjust based on BMI
+    if bmi < 18.5:
+        body_age += 2.0  # Underweight adds age
+    elif bmi > 25.0:
+        body_age += (bmi - 25.0) * 0.5  # Overweight adds age
+    
+    # Adjust based on body fat percentage
+    if is_male:
+        if fat_percentage > 25.0:
+            body_age += (fat_percentage - 25.0) * 0.3
+        elif fat_percentage < 10.0:
+            body_age += 1.0
+    else:
+        if fat_percentage > 32.0:
+            body_age += (fat_percentage - 32.0) * 0.3
+        elif fat_percentage < 16.0:
+            body_age += 1.0
+    
+    # Adjust based on visceral fat
+    if visceral_fat > 10.0:
+        body_age += (visceral_fat - 10.0) * 0.2
+    
+    return round(body_age, 1)
+
+
+def calculate_all_evaluation_metrics(
+    weight_kg: float,
+    height_m: float,
+    age: int,
+    is_male: bool,
+    skinfold_triceps: float,
+    skinfold_subscapular: float,
+    skinfold_subaxillary: float,
+    skinfold_suprailiac: float,
+    skinfold_abdominal: float,
+    skinfold_quadriceps: float,
+    skinfold_calf: float,
+    waist_perimeter: float
+) -> Dict[str, float]:
+    """
+    Calculate all evaluation metrics at once.
+    
+    Args:
+        weight_kg: Weight in kilograms
+        height_m: Height in meters
+        age: Age in years
+        is_male: True for male, False for female
+        skinfold_*: All skinfold measurements in mm
+        waist_perimeter: Waist perimeter in cm
+    
+    Returns:
+        Dictionary with all calculated metrics
+    """
+    # Basic calculations
+    bmi = calculate_bmi(weight_kg, height_m) or 0.0
+    
+    # Body composition
+    fat_percentage = calculate_body_fat_percentage(
+        age, is_male,
+        skinfold_triceps, skinfold_subscapular, skinfold_subaxillary,
+        skinfold_suprailiac, skinfold_abdominal, skinfold_quadriceps, skinfold_calf
+    )
+    
+    fat_lean = calculate_fat_and_lean_weight(weight_kg, fat_percentage)
+    lean_percentage = calculate_lean_mass_percentage(fat_percentage)
+    
+    # Advanced calculations
+    basal_metabolism = calculate_basal_metabolism(weight_kg, height_m, age, is_male)
+    visceral_fat = calculate_visceral_fat(waist_perimeter, height_m, age, is_male)
+    body_age = calculate_body_age(age, bmi, fat_percentage, visceral_fat, is_male)
+    
+    return {
+        'imc': bmi,
+        'basal_metabolism': basal_metabolism,
+        'body_age': body_age,
+        'visceral_fat': visceral_fat,
+        'estimated_height': height_m,  # Already have height, but keeping for consistency
+        'fat_weight': fat_lean['fat_weight'],
+        'lean_weight': fat_lean['lean_weight'],
+        'fat_percentage': fat_percentage,
+        'lean_mass_percentage': lean_percentage
+    }

@@ -321,6 +321,107 @@ export const createClass = async (data: ClassCreate): Promise<Class> => {
 };
 ```
 
+### Enrollments (Matrículas)
+
+#### Listar Todas as Matrículas
+
+**GET** `/api/enrollments`
+
+**Response** (200 OK):
+```json
+[
+  {
+    "id": "770e8400-e29b-41d4-a716-446655440000",
+    "student_id": "550e8400-e29b-41d4-a716-446655440000",
+    "class_id": "660e8400-e29b-41d4-a716-446655440000",
+    "enrolled_at": "2025-01-12T10:00:00"
+  }
+]
+```
+
+#### Matricular Aluno em Aula
+
+**POST** `/api/enrollments`
+
+**Request Body**:
+```json
+{
+  "student_id": "550e8400-e29b-41d4-a716-446655440000",
+  "class_id": "660e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440000",
+  "student_id": "550e8400-e29b-41d4-a716-446655440000",
+  "class_id": "660e8400-e29b-41d4-a716-446655440000",
+  "enrolled_at": "2025-01-12T10:00:00"
+}
+```
+
+#### Listar Alunos Matriculados em uma Aula
+
+**GET** `/api/enrollments/class/{class_id}/students`
+
+**Response** (200 OK):
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    "birthdate": "1990-05-15",
+    "phone": "11999999999",
+    "created_at": "2025-01-01T10:00:00"
+  }
+]
+```
+
+#### Listar Matrículas de um Aluno
+
+**GET** `/api/enrollments/student/{student_id}`
+
+#### Remover Matrícula
+
+**DELETE** `/api/enrollments/{enrollment_id}`
+
+ou
+
+**DELETE** `/api/enrollments/student/{student_id}/class/{class_id}`
+
+**Exemplo de Código**:
+```typescript
+// src/services/enrollmentService.ts
+import api from './api';
+
+export interface Enrollment {
+  id: string;
+  student_id: string;
+  class_id: string;
+  enrolled_at: string;
+}
+
+export interface EnrollmentCreate {
+  student_id: string;
+  class_id: string;
+}
+
+export const enrollStudent = async (data: EnrollmentCreate): Promise<Enrollment> => {
+  const response = await api.post<Enrollment>('/enrollments', data);
+  return response.data;
+};
+
+export const getEnrolledStudents = async (classId: string): Promise<Student[]> => {
+  const response = await api.get<Student[]>(`/enrollments/class/${classId}/students`);
+  return response.data;
+};
+
+export const removeEnrollment = async (enrollmentId: string): Promise<void> => {
+  await api.delete(`/enrollments/${enrollmentId}`);
+};
+```
+
 ### Attendance (Presença)
 
 #### Registrar Presença Individual
@@ -361,9 +462,30 @@ export const createClass = async (data: ClassCreate): Promise<Class> => {
 }
 ```
 
+#### Listar Alunos Matriculados para Presença
+
+**GET** `/api/attendance/class/{class_id}/students`
+
+**Response** (200 OK):
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    "birthdate": "1990-05-15",
+    "phone": "11999999999",
+    "created_at": "2025-01-01T10:00:00"
+  }
+]
+```
+
+**Nota**: Este endpoint retorna apenas alunos matriculados na aula. Use este endpoint para obter a lista de alunos ao marcar presença.
+
 #### Listar Presenças de uma Aula
 
 **GET** `/api/attendance/class/{class_id}?from=YYYY-MM-DD&to=YYYY-MM-DD`
+
+**Nota**: Ao criar presença, o sistema valida automaticamente se o aluno está matriculado na aula.
 
 **Query Parameters** (opcionais):
 - `from`: Data inicial (YYYY-MM-DD)
@@ -424,45 +546,102 @@ export const getAttendanceByClass = async (
 
 **POST** `/api/evaluations`
 
-**Request Body**:
+**Request Body** (todos os campos são obrigatórios):
 ```json
 {
   "student_id": "550e8400-e29b-41d4-a716-446655440000",
   "date": "2025-01-12",
   "weight_kg": 80.5,
   "height_m": 1.75,
-  "measurements": {
-    "waist_cm": 85,
-    "hip_cm": 95
-  },
-  "notes": "Avaliação inicial"
+  "cardiopathy": false,
+  "cardiopathy_notes": null,
+  "hypertension": false,
+  "hypertension_notes": null,
+  "diabetes": false,
+  "diabetes_notes": null,
+  "heart_rate_rest": 72,
+  "wells_sit_reach_test": 25.5,
+  "trunk_flexion_test": 30.0,
+  "skinfold_triceps": 12.5,
+  "skinfold_subscapular": 15.0,
+  "skinfold_subaxillary": 10.0,
+  "skinfold_suprailiac": 18.0,
+  "skinfold_abdominal": 20.0,
+  "skinfold_quadriceps": 14.0,
+  "skinfold_calf": 8.0,
+  "perimeter_chest": 100.0,
+  "perimeter_arm_r": 32.0,
+  "perimeter_arm_l": 31.5,
+  "perimeter_arm_contracted_r": 35.0,
+  "perimeter_arm_contracted_l": 34.5,
+  "perimeter_forearm_r": 28.0,
+  "perimeter_forearm_l": 27.5,
+  "perimeter_waist": 85.0,
+  "perimeter_abdominal": 90.0,
+  "perimeter_hip": 95.0,
+  "perimeter_thigh_r": 55.0,
+  "perimeter_thigh_l": 54.5,
+  "perimeter_leg_r": 38.0,
+  "perimeter_leg_l": 37.5,
+  "notes": "Avaliação inicial completa"
 }
 ```
 
-**Nota**: O IMC é calculado automaticamente pelo backend se `height_m` for fornecido.
+**Nota**: Todos os cálculos (IMC, metabolismo basal, % gordura, etc.) são calculados automaticamente pelo backend. A idade é calculada automaticamente a partir da data de nascimento do aluno.
 
 #### Listar Avaliações de um Aluno
 
 **GET** `/api/evaluations/student/{student_id}`
 
+**Response** (200 OK): Retorna lista completa com todos os campos e cálculos.
+
+#### Obter Relatório Final de Avaliação
+
+**GET** `/api/evaluations/{evaluation_id}/report`
+
 **Response** (200 OK):
 ```json
-[
-  {
+{
+  "evaluation": {
     "id": "880e8400-e29b-41d4-a716-446655440000",
     "student_id": "550e8400-e29b-41d4-a716-446655440000",
-    "date": "2025-01-01",
+    "date": "2025-01-12",
+    "age": 34,
     "weight_kg": 80.5,
     "height_m": 1.75,
-    "measurements": {
-      "waist_cm": 85,
-      "hip_cm": 95
-    },
-    "notes": "Avaliação inicial",
-    "imc": 26.29
+    "imc": 26.29,
+    "basal_metabolism": 1850.5,
+    "body_age": 36.2,
+    "visceral_fat": 8.5,
+    "fat_weight": 16.1,
+    "lean_weight": 64.4,
+    "fat_percentage": 20.0,
+    "lean_mass_percentage": 80.0,
+    ...
+  },
+  "student": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    ...
+  },
+  "summary": {
+    "current_date": "2025-01-12",
+    "evaluation_number": 3,
+    "total_evaluations": 5,
+    "key_metrics": {...},
+    "health_conditions": {...},
+    "comparison_with_previous": {
+      "previous_date": "2024-12-01",
+      "weight_change_kg": -2.5,
+      "imc_change": -0.8,
+      "fat_percentage_change": -1.5,
+      "trend": "improving"
+    }
   }
-]
+}
 ```
+
+**Nota**: Este endpoint retorna um relatório completo com comparações com avaliações anteriores.
 
 #### Obter Dados para Gráfico
 
@@ -577,17 +756,49 @@ const renderChart = async (studentId: string) => {
 {
   "type": "income",
   "amount": 150.00,
+  "payment_method": "pix",
   "category": "Mensalidade",
   "description": "Mensalidade Janeiro - João Silva",
   "date_time": "2025-01-12T10:00:00"
 }
 ```
 
-**Nota**: `date_time` é opcional. Se não fornecido, usa o horário atual.
+**Métodos de Pagamento**: `credit`, `debit`, `pix`, `cash`, `other`
+
+**Nota**: `payment_method` é obrigatório. `date_time` é opcional. Se não fornecido, usa o horário atual.
 
 #### Obter Fechamento de Caixa
 
 **GET** `/api/finance?date=YYYY-MM-DD`
+
+**Response** (200 OK):
+```json
+{
+  "entries": [
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440000",
+      "date_time": "2025-01-12T10:00:00",
+      "type": "income",
+      "amount": 150.00,
+      "payment_method": "pix",
+      "category": "Mensalidade",
+      "description": "Mensalidade Janeiro - João Silva",
+      "created_by": null
+    }
+  ],
+  "total_income": 150.00,
+  "total_expense": 0.00,
+  "balance": 150.00
+}
+```
+
+#### Exportar Fluxo de Caixa para Excel
+
+**GET** `/api/finance/export/xlsx?date=YYYY-MM-DD`
+
+**Response**: Arquivo Excel (.xlsx) para download
+
+**Nota**: O arquivo Excel contém todos os campos do relatório formatado, incluindo totais e saldo.
 
 **Query Parameters**:
 - `date`: Data no formato YYYY-MM-DD (opcional, usa data atual se não fornecido)
@@ -622,6 +833,7 @@ export interface FinanceEntry {
   date_time: string;
   type: 'income' | 'expense';
   amount: number;
+  payment_method: 'credit' | 'debit' | 'pix' | 'cash' | 'other';
   category: string | null;
   description: string | null;
   created_by: string | null;
@@ -630,6 +842,7 @@ export interface FinanceEntry {
 export interface FinanceEntryCreate {
   type: 'income' | 'expense';
   amount: number;
+  payment_method: 'credit' | 'debit' | 'pix' | 'cash' | 'other';
   category?: string | null;
   description?: string | null;
   date_time?: string;
@@ -849,6 +1062,7 @@ export interface FinanceEntry {
   date_time: string;
   type: 'income' | 'expense';
   amount: number;
+  payment_method: 'credit' | 'debit' | 'pix' | 'cash' | 'other';
   category: string | null;
   description: string | null;
   created_by: string | null;
@@ -857,6 +1071,7 @@ export interface FinanceEntry {
 export interface FinanceEntryCreate {
   type: 'income' | 'expense';
   amount: number;
+  payment_method: 'credit' | 'debit' | 'pix' | 'cash' | 'other';
   category?: string | null;
   description?: string | null;
   date_time?: string;

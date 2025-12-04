@@ -8,7 +8,8 @@ from typing import List
 from app.schemas import (
     EvaluationCreate,
     EvaluationResponse,
-    ChartDataResponse
+    ChartDataResponse,
+    EvaluationReportResponse
 )
 from app import crud
 
@@ -59,4 +60,40 @@ async def get_chart_data(student_id: str):
     
     chart_data = crud.get_chart_data(student_id)
     return chart_data
+
+
+@router.get("/{evaluation_id}/report", response_model=EvaluationReportResponse, status_code=200)
+async def get_evaluation_report(evaluation_id: str):
+    """Get comprehensive evaluation report with all calculated metrics and comparisons."""
+    # Get evaluation
+    evaluation = crud.get_evaluation_by_id(evaluation_id)
+    if not evaluation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Evaluation with id {evaluation_id} not found"
+        )
+    
+    student_id = evaluation.get('student_id')
+    
+    # Get student
+    student = crud.get_student_by_id(student_id)
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Student with id {student_id} not found"
+        )
+    
+    # Get all evaluations for comparison
+    all_student_evaluations = crud.get_evaluations_by_student(student_id)
+    
+    # Generate summary/comparison data
+    summary = crud.generate_evaluation_summary(evaluation, all_student_evaluations)
+    
+    from app.schemas import StudentResponse
+    
+    return EvaluationReportResponse(
+        evaluation=EvaluationResponse(**evaluation),
+        student=StudentResponse(**student),
+        summary=summary
+    )
 

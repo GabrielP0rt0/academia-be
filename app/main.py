@@ -13,6 +13,7 @@ from app.routers import (
     auth,
     students,
     classes,
+    enrollments,
     attendance,
     evaluations,
     finance,
@@ -47,6 +48,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(students.router)
 app.include_router(classes.router)
+app.include_router(enrollments.router)
 app.include_router(attendance.router)
 app.include_router(evaluations.router)
 app.include_router(finance.router)
@@ -59,6 +61,7 @@ async def startup_event():
     # Ensure all JSON files exist with empty lists
     db.ensure_file_exists('students.json')
     db.ensure_file_exists('classes.json')
+    db.ensure_file_exists('enrollments.json')
     db.ensure_file_exists('attendance.json')
     db.ensure_file_exists('evaluations.json')
     db.ensure_file_exists('finance.json')
