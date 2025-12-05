@@ -19,19 +19,5 @@
     "student_id": "550e8400-e29b-41d4-a716-446655440001",
     "date_time": "2025-12-01T20:48:02.286456",
     "status": "present"
-  },
-  {
-    "id": "f9b6cd37-53d5-4b55-91dc-3e848cc69ac7",
-    "class_id": "29704e0a-4af4-407a-8777-26ed8551138b",
-    "student_id": "550e8400-e29b-41d4-a716-446655440000",
-    "date_time": "2025-12-05T10:40:17.418551",
-    "status": "present"
-  },
-  {
-    "id": "95d981fa-8661-4a66-85f3-2bad6da9da44",
-    "class_id": "af80e8ae-3715-4323-9dd8-1a3ca697b5dc",
-    "student_id": "bd4b0056-997e-4a95-a223-7b71a4807e2c",
-    "date_time": "2025-12-05T10:41:51.875646",
-    "status": "present"
   }
 ]

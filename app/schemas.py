@@ -52,6 +52,28 @@ class ClassCreate(BaseModel):
     """Schema for creating a new class."""
     name: str = Field(..., min_length=1, description="Class name")
     description: Optional[str] = Field(None, description="Class description")
+    date: str = Field(..., description="Class date in YYYY-MM-DD format")
+    time: str = Field(..., description="Class time in HH:MM format")
+    
+    @field_validator('date')
+    @classmethod
+    def validate_date(cls, v: str) -> str:
+        """Validate date format."""
+        try:
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError("Date must be in YYYY-MM-DD format")
+        return v
+    
+    @field_validator('time')
+    @classmethod
+    def validate_time(cls, v: str) -> str:
+        """Validate time format."""
+        try:
+            datetime.strptime(v, '%H:%M')
+        except ValueError:
+            raise ValueError("Time must be in HH:MM format")
+        return v
 
 
 class ClassResponse(BaseModel):
@@ -59,6 +81,8 @@ class ClassResponse(BaseModel):
     id: str = Field(..., description="Class UUID")
     name: str = Field(..., description="Class name")
     description: Optional[str] = Field(None, description="Class description")
+    date: str = Field(..., description="Class date in YYYY-MM-DD format")
+    time: str = Field(..., description="Class time in HH:MM format")
     created_at: str = Field(..., description="Creation timestamp in ISO8601 format")
 
 

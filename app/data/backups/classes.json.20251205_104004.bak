@@ -16,21 +16,5 @@
     "name": "Funcional",
     "description": "Pilas",
     "created_at": "2025-12-01T20:47:54.361707"
-  },
-  {
-    "id": "29704e0a-4af4-407a-8777-26ed8551138b",
-    "name": "Pilates",
-    "description": "Professor juriscreiton",
-    "date": "2025-12-05",
-    "time": "17:00",
-    "created_at": "2025-12-05T10:40:04.513315"
-  },
-  {
-    "id": "af80e8ae-3715-4323-9dd8-1a3ca697b5dc",
-    "name": "Pilates",
-    "description": "Professor pinheiros",
-    "date": "2025-12-05",
-    "time": "10:42",
-    "created_at": "2025-12-05T10:41:40.569999"
   }
 ]

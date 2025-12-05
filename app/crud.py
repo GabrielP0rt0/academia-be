@@ -74,6 +74,8 @@ def create_class(class_data: Dict[str, Any]) -> Dict[str, Any]:
         'id': str(uuid.uuid4()),
         'name': class_data['name'],
         'description': class_data.get('description'),
+        'date': class_data['date'],
+        'time': class_data['time'],
         'created_at': utils.get_current_datetime_iso()
     }
     
@@ -81,6 +83,29 @@ def create_class(class_data: Dict[str, Any]) -> Dict[str, Any]:
     db.write_json_file('classes.json', classes)
     
     return new_class
+
+
+def get_classes_by_date_range(from_date: Optional[str] = None, to_date: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Get classes filtered by date range."""
+    all_classes = get_all_classes()
+    
+    if not from_date and not to_date:
+        return all_classes
+    
+    filtered_classes = []
+    for class_item in all_classes:
+        class_date = class_item.get('date')
+        if not class_date:
+            continue
+        
+        if from_date and class_date < from_date:
+            continue
+        if to_date and class_date > to_date:
+            continue
+        
+        filtered_classes.append(class_item)
+    
+    return filtered_classes
 
 
 # ============================================================================
@@ -189,13 +214,18 @@ def delete_enrollment_by_student_and_class(student_id: str, class_id: str) -> bo
 # Attendance CRUD
 # ============================================================================
 
+def get_all_attendance() -> List[Dict[str, Any]]:
+    """Get all attendance records."""
+    return db.read_json_file('attendance.json')
+
+
 def get_attendance_by_class(
     class_id: str,
     from_date: Optional[str] = None,
     to_date: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """Get attendance records for a class, optionally filtered by date range."""
-    all_attendance = db.read_json_file('attendance.json')
+    all_attendance = get_all_attendance()
     
     # Filter by class_id
     class_attendance = [
